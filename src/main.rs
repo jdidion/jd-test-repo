@@ -29,6 +29,7 @@ fn main() -> Result<(), Error> {
 
     // DELETEME: Your code here...
     println!("Arg = {}", args.arg);
+    println!("Arg2");
 
     Ok(())
 }
