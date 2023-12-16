@@ -1,0 +1,6 @@
+[alias]
+ci-test = "nextest run --all-features --locked"
+ci-fmt = "fmt --all -- --check"
+ci-lint = "clippy --all-targets --all-features -- -D warnings"
+[build]
+rustc-wrapper = "sccache"

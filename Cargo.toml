@@ -1,0 +1,49 @@
+[package]
+name = "jd-test-repo"
+version = "0.1.0"
+authors = ["John Didion <john@fulcrumgenomics.com>"]
+description = "A test repo"
+repository = "https://github.com/fulcrumgenomics/jd-test-repo"
+homepage = "https://github.com/fulcrumgenomics/jd-test-repo"
+categories = ["science"]
+keywords = ["bioinformatics"]
+license = "MIT"
+edition = "2021"
+rust-version = "1.60.0"
+resolver = "2"
+
+[dependencies]
+clap = { version = "4", features = ["derive", "string"] }
+log = "0"
+once_cell = "1"
+thiserror = "1"
+
+[dev-dependencies]
+rstest = "0"
+
+[build-dependencies]
+built = { version = "0", features = ["git2"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+
+# Config for 'cargo dist'
+[workspace.metadata.dist]
+cargo-dist-version = "0.4.3"
+ci = ["github"]
+installers = ["shell", "powershell"]
+targets = [
+    "x86_64-unknown-linux-gnu", 
+    "x86_64-apple-darwin", 
+    "aarch64-apple-darwin",
+    
+]
+# Necessary to be able to modify the release workflow
+allow-dirty = ["ci"]
+
+
+# The profile that 'cargo dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
