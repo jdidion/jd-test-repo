@@ -10,17 +10,18 @@ If you do not have the Rust toolchain installed, the best way to install it is w
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-It is also recommended to install the following additional tools. These tools are used in the CI/CD workflows, and there are [aliases]() defined that enable you to use them in the same way locally to simulate the checks that are performed during CI.
+It is also recommended to install the following additional tools. These tools are used in the CI/CD workflows, and there are [aliases](#code-conventions) defined that enable you to use them in the same way locally to simulate the checks that are performed during CI.
 
 * [`cargo-nextest`](https://nexte.st/): A replacement for the Cargo test runner. It is recommended to use this for running tests.
-    * Installation: Download a [pre-built binary](https://nexte.st/book/pre-built-binaries.html) or run `cargo install cargo-nextest --locked`.
-    * Usage: `cargo nextest run`, or use the alias to emulate how it is run during CI: `cargo ci-test`.
+  * Installation: Download a [pre-built binary](https://nexte.st/book/pre-built-binaries.html) or run `cargo install cargo-nextest --locked`.
+  * Usage: `cargo nextest run`, or use the alias to emulate how it is run during CI: `cargo ci-test`.
 * [`cargo-audit`](https://github.com/RustSec/rustsec/tree/main/cargo-audit) to perform a security audit of dependencies.
-    * Installation: `cargo install cargo-audit`
-    * Usage: `cargo audit`
+  * Installation: `cargo install cargo-audit`
+  * Usage: `cargo audit`
 * [`sccache`](https://github.com/mozilla/sccache#installation) is a compiler cache that stores and reuses compilation results to speed up build times.
-    * Installation: `cargo install sccache --locked`
-    * Usage: You can enable`sccache` globally using an environment variable: `export RUSTC_WRAPPER=/path/to/sccache`. You can also configure it on a per-project basis - this can be done for you automatically when you generate the project (see below).
+  * Installation: `cargo install sccache --locked`
+  * Usage: You can enable`sccache` globally using an environment variable: `export RUSTC_WRAPPER=/path/to/sccache`. You can also configure it on a per-project basis - this can be done for you automatically when you generate the project (see below).
+
 ## Project structure
 
 This project uses the [conventional Cargo package layout](https://doc.rust-lang.org/cargo/guide/project-layout.html).
@@ -48,9 +49,9 @@ The use of source control - specifically, `git` via GitHub - is central to the d
 
 * Do not push to [someone else’s branch](#git-branches) without first getting their approval; this includes committing suggestions in a PR review. It is always acceptable to branch off and make a PR into someone else's branch.
 * The person who opens and owns a PR is the only person who may merge the PR (once all checks are passed); anyone else should ask the PR owner for permission before merging the PR.
-* Use `rebase` rather than `merge`, to maintain a clean, linear history.
+* Use `rebase` rather than `merge`, to maintain a clean, linear history. Learning to use [`--update-refs`](https://andrewlock.net/working-with-stacked-branches-in-git-is-easier-with-update-refs/) can make this much easier.
 * If you’re moving/renaming a source file, use `git mv` to make sure git tracks it properly.
-* Be careful and purposeful about what you commit to the repository. Do not commit IDE specific files, or your own personal test files and notes. Use `.gitignore` to avoid commiting local-only files (although please use `~/.gitignore` for any files specific your personal development process). Any test data larger than a few kb should, not be committed to the repository; instead, generate it dynamically or pull it from an object store (e.g., AWS S3) during setup of your integration tests.
+* Be careful and purposeful about what you commit to the repository. Do not commit IDE-specific files, or your own personal test files and notes. Use `.gitignore` to avoid commiting local-only files (although please use `~/.gitignore` for any files specific to your personal development process). Any test data larger than a few kb should, not be committed to the repository; instead, generate it dynamically or pull it from an object store (e.g., AWS S3) during setup of your integration tests.
 
 ## Development lifecycle
 
@@ -64,7 +65,7 @@ If you are one of the [project admins](../.github/CODEOWNERS), please add/change
 
 The `main` branch is protected and can only be pushed to from a pull request (PR). This means you'll need to do your development in a separate git branch and open a PR to `main` when you're done.
 
-As with all aspects of development, you should follow any Fulcrum best practices that apply. In this case, Fulcrum [git etiquette](#git-etiquette) dictates breaking up larger issues into multiple smaller PRs and maintaining a clean commit history through the use of rebasing or squash-merging. Each PR should use a separate branch, and branches are automatically deleted after they are merged. Branches can be independent or cascading, but keep in mind that cascading branches can become unweildy when rebasing is required.
+As with all aspects of development, you should follow any Fulcrum best practices that apply. In this case, Fulcrum [git etiquette](#git-etiquette) dictates breaking up larger issues into multiple smaller PRs and maintaining a clean commit history through the use of rebasing or squash-merging. Each PR should use a separate branch, and branches are automatically deleted after they are merged. Branches can be independent or cascading, but keep in mind that cascading branches can become unweildy when rebasing is required (although [`git rebase --update-refs`](https://andrewlock.net/working-with-stacked-branches-in-git-is-easier-with-update-refs/) can make this much easier).
 
 Branches should follow the standard naming convention `<issue-number>/<user>/<type>-<description>`:
 
@@ -99,11 +100,15 @@ When a particular topic is not covered by Fulcrum best practices, you can [start
 
 Please read the [rustdoc book](https://doc.rust-lang.org/rustdoc/how-to-write-documentation.html) to learn how to write good documenation comments. At a minimum, all of the functions and data structures that are a part of the project's public API should be documented completely.
 
-You are encouraged to include [examples](https://doc.rust-lang.org/rust-by-example/testing/doc_testing.html) in the function documentation, as these are also run as test cases.#### Testing
+You are encouraged to include [examples](https://doc.rust-lang.org/rust-by-example/testing/doc_testing.html) in the function documentation, as these are also run as test cases.
+
+#### Testing
 
 In general, every addition of (non-trivial) code to the project must be accompanied by unit tests that, at a minimum, exercise all the "happy paths" (i.e., non-error cases) through the code. It is strongly recommended to also test at least the most commonly expected error cases to make sure they are handled correctly. Most importantly, every bugfix *must* be accompanied by at least one regression test.
 
-Please read the [documentation](https://doc.rust-lang.org/rust-by-example/testing/unit_testing.html) on unit testing in Rust if you haven't already done so. We use [`rstest`](https://docs.rs/rstest/latest/rstest/) for writing tests, and we use [`nextest`](https://nexte.st/) for running tests in CI and recommend you use it locally. The Cargo `ci-test` alias will run the project tests in the same way they are run in CI.### Commit messages
+Please read the [documentation](https://doc.rust-lang.org/rust-by-example/testing/unit_testing.html) on unit testing in Rust if you haven't already done so. We use [`rstest`](https://docs.rs/rstest/latest/rstest/) for writing tests, and we use [`nextest`](https://nexte.st/) for running tests in CI and recommend you use it locally. The Cargo `ci-test` alias will run the project tests in the same way they are run in CI.
+
+### Commit messages
 
 We follow the practice of using [conventional commit messages](https://www.conventionalcommits.org/en/v1.0.0/), which enables [automation]() of versioning and the changelog. Convential commit messages are only required for commits that are merged into the `main` branch (e.g., the squashed commit message when [merging a PR]()), but you are encouraged to always use them as it can help you when you need to write the final commit message, as well as others working in your branch or reviewing your PR.
 
@@ -123,16 +128,16 @@ The commit `type` indicates the impact of the change on users of the package. Wh
 * `feat`: introduces a new feature to the codebase. This is generally associated with issues labeled `enhancement`. When there are only `feat` and `fix` commits included in a release, it causes an increment in the `MINOR` version.
 * Commits that only change dependencies (e.g., update versions) should have type `fix`.
 * Types other than `fix` and `feat` are allowed, but typically have no impact on the version. Currently, the following other types are allowed. If you identify a need for a new type, please add it to this list:
-    * `build`: changes to how the package is compiled. Typically, such changes involve `build.rs` or `Cargo.toml`.
-    * `chore`: catch-all for maintainance activities that don't fall under any of the other types.
-    * `ci`: changes to the CI/CD workflows or other files in the `.github` folder.
-    * `config`: changes to project configuration that does not affect compilation. Typically, these changes involve `*.toml` files.
-    * `docs`: changes to code comments or other documentation (`README.md` or files in `docs/`).
-    * `example`: addition of or changes to example code in the documentation comments.
-    * `perf`: changes that only affects the performance of existing code. This should be accompanied by regression tests.
-    * `refactor`: changes to the structure of the code that does not change any functionality. This should be accompanied by regression tests.
-    * `style`: changes to code formatting only. Note that there should not be any `style` commits to `main` (since only properly styled code should pass the CI checks) unless accompanied by a `config` change to the formatting rules.
-    * `test`: addition of or changes to test code only.
+  * `build`: changes to how the package is compiled. Typically, such changes involve `build.rs` or `Cargo.toml`.
+  * `chore`: catch-all for maintainance activities that don't fall under any of the other types.
+  * `ci`: changes to the CI/CD workflows or other files in the `.github` folder.
+  * `config`: changes to project configuration that does not affect compilation. Typically, these changes involve `*.toml` files.
+  * `docs`: changes to code comments or other documentation (`README.md` or files in `docs/`).
+  * `example`: addition of or changes to example code in the documentation comments.
+  * `perf`: changes that only affects the performance of existing code. This should be accompanied by regression tests.
+  * `refactor`: changes to the structure of the code that does not change any functionality. This should be accompanied by regression tests.
+  * `style`: changes to code formatting only. Note that there should not be any `style` commits to `main` (since only properly styled code should pass the CI checks) unless accompanied by a `config` change to the formatting rules.
+  * `test`: addition of or changes to test code only.
 
 The commit's `scope` (if any) provides additional context, such as the component of the project that is being changed. For example, `feat(parser)` implies the addition of features to the project's parser component.
 
@@ -159,6 +164,7 @@ Several checks will be run automatically when you open a PR and each time you pu
 * Run all unit tests
 * Check code formatting
 * Check code style
+
 The [development lifecycle](#development-lifecycle) section describes how you can run these same checks locally; you should make sure to do so before opening/updating a PR. If any of these checkes fail, you must resolve them before requesting a review. Please do not globally disable any checks in your branch, as such changes will be rejected. If you think that any of these checks should be changed, please open a separate PR (type `config` or `ci`) and resolve that first.
 
 #### Review process
@@ -188,6 +194,7 @@ Each time a pull request is merged into `main`, the [publish](.github/workflows/
 Making a release simply requires merging the current release PR. When the `publish` workflow runs, it recognizes that the PR being merged is a release PR, and it does the following:
 
 * Creates a new tag with the release version.
+ 
 The creation of the version tag triggers the [`release`](.github/workflows/release.yml) workflow, which does the following:
 
 * Creates a new [GitHub release](https://github.com/fulcrumgenomics/jd-test-repo/releases) with changes from the (automatically updated) changelog.
